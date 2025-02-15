@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend for Secret Santa Game...",
+  "homepage": "https://github.com/arunkumarmudakavi/Secret_Santa#readme",
+  "bugs": {
+    "url": "https://github.com/arunkumarmudakavi/Secret_Santa/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arunkumarmudakavi/Secret_Santa.git"
+  },
+  "license": "ISC",
+  "author": "ARUNKUMAR M M",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
