@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import csv from "csv-parser";
 import fs from "fs";
 import { csvModel } from "../models/csv.model.js";
+import { writeToStream } from "fast-csv"
 
 const uploadCSVFile = asyncHandler(async (req, res) => {
   const filePath = req?.files[0]?.path;
@@ -41,9 +42,73 @@ const uploadCSVFile = asyncHandler(async (req, res) => {
 });
 
 const getChildAssigned = asyncHandler(async (req, res) => {
-    // res.send("hey")a
-    const resu = await csvModel.find()
-    console.log(resu)
+
+  //Knuth shuffle Algorithm
+  const shuffleEmployees = (employeeArray) => {
+    for (let i = employeeArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [employeeArray[i], employeeArray[j]] = [employeeArray[j], employeeArray[i]];
+    }
+  }
+
+  const previousYearData = await csvModel.find();
+
+  const employees = previousYearData[0]?.employeeDetails.map((data) => ({
+    name: data?.Employee_Name,
+    email: data?.Employee_EmailID,
+  }));
+
+
+  let assignments = [];
+  let tries = 0;
+
+  while (assignments.length < employees.length && tries < 100) {
+    shuffleEmployees(employees);
+    assignments = [];
+    let valid = true;
+
+    for (let i = 0; i < employees.length; i++) {
+      const employee = employees[i];
+      const previousYearAssignment = await previousYearData.find(
+        (data) => data?.Employee_Name === employee.name
+      );
+
+      // console.log(previousYearAssignment)
+
+if (
+        previousYearAssignment &&
+        previousYearAssignment?.Secret_Child_Name ===
+          employees[(i + 1) % employees.length].name
+      ) {
+        valid = false;
+        break;
+      }
+
+      assignments.push({
+        Employee_Name: employee.name,
+        Employee_EmailID: employee.email,
+        Secret_Child_Name: employees[(i + 1) % employees.length].name,
+        Secret_Child_EmailID: employees[(i + 1) % employees.length].email,
+      });
+      
+    }
+    
+    if (valid) break;
+    tries++;
+  }
+  // console.log("line 98: " ,assignments)
+
+  const writeStream = fs.createWriteStream("./public/NewGeneratedAssignments.csv");
+
+  writeToStream(writeStream, assignments, {headers: true})
+  .on("finish", () => console.log("Successfully Generated"))
+
+  return res
+        .status(200)
+        .json(
+          new ApiResponse(200, writeStream, "Data fetched successfully")
+        );      
+
 });
 
 const home = asyncHandler(async (_, res) => {
