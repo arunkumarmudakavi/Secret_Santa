@@ -8,7 +8,7 @@ import { writeToStream } from "fast-csv"
 
 const uploadCSVFile = asyncHandler(async (req, res) => {
   const filePath = req?.files[0]?.path;
-  // console.log("path: ",filePath)
+  console.log("path: ",filePath)
 
   if (!filePath) throw new ApiError(400, "File not found");
   const result = [];
